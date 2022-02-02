@@ -1,13 +1,29 @@
+import java.text.SimpleDateFormat
+
 plugins {
-    id 'com.android.application'
+    id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.seanutf.android'
+                artifactId = 'media-preview-provider'
+                version = '0.0.1'
+            }
+        }
+    }
 }
 
 android {
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.seanutf.mediapreviewprovider"
+        //applicationId "com.seanutf.mediapreviewprovider"
         minSdk 23
         targetSdk 32
         versionCode 1

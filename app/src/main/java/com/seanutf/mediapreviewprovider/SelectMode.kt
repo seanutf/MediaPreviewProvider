@@ -1,0 +1,19 @@
+package com.seanutf.mediapreviewprovider
+
+
+enum class SelectMode{
+    /**
+     * 只扫描图片
+     * */
+    IMG,
+
+    /**
+     * 只扫描视频
+     * */
+    VIDEO,
+
+    /**
+     * 图片视频都扫描
+     * */
+    ALL,
+}
