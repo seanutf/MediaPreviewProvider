@@ -45,7 +45,7 @@ public class Album {
 
     private boolean checked;
 
-    private List<MFile> mediaList;
+    private List<Media> mediaList;
 
     public boolean isSelected() {
         return isSelected;
@@ -123,11 +123,11 @@ public class Album {
         this.checked = checked;
     }
 
-    public List<MFile> getMediaList() {
+    public List<Media> getMediaList() {
         return mediaList;
     }
 
-    public void setMediaList(List<MFile> mediaList) {
+    public void setMediaList(List<Media> mediaList) {
         this.mediaList = mediaList;
     }
 }

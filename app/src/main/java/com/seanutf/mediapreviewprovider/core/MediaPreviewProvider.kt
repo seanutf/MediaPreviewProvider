@@ -2,7 +2,7 @@ package com.seanutf.mediapreviewprovider.core
 
 import com.seanutf.mediapreviewprovider.config.QueryConfig
 import com.seanutf.mediapreviewprovider.data.Album
-import com.seanutf.mediapreviewprovider.data.MFile
+import com.seanutf.mediapreviewprovider.data.Media
 
 
 class MediaPreviewProvider {
@@ -34,7 +34,7 @@ class MediaPreviewProvider {
     }
 
 
-    fun loadAlbumMedias(bucketId: Long): List<MFile>? {
+    fun loadAlbumMedias(bucketId: Long): List<Media>? {
         if (queryConfig == null) {
             return null
         }
@@ -47,7 +47,7 @@ class MediaPreviewProvider {
         )
     }
 
-    fun loadAlbumMedias2(bucketId: Long, loadAlbum: Boolean): List<MFile>? {
+    fun loadAlbumMedias2(bucketId: Long, loadAlbum: Boolean): List<Media>? {
         if (queryConfig == null) {
             return null
         }

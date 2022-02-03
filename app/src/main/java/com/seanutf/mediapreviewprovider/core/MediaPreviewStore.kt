@@ -12,7 +12,6 @@ import com.seanutf.mediapreviewprovider.ProviderContext
 import com.seanutf.mediapreviewprovider.SelectMode
 import com.seanutf.mediapreviewprovider.config.QueryConfig
 import com.seanutf.mediapreviewprovider.data.Album
-import com.seanutf.mediapreviewprovider.data.MFile
 import com.seanutf.mediapreviewprovider.data.Media
 import java.util.*
 
@@ -332,7 +331,7 @@ class MediaPreviewStore {
         selection: String,
         selectionArgs: Array<String>,
         sortOrder: String
-    ): MutableList<MFile>? {
+    ): MutableList<Media>? {
         var cursor: Cursor? = null
         try {
             cursor = ProviderContext.context.contentResolver.query(
@@ -354,13 +353,13 @@ class MediaPreviewStore {
     }
 
     @SuppressLint("Range")
-    private fun queryMediaList(cursor: Cursor): MutableList<MFile> {
-        val mediaItems: MutableList<MFile> = mutableListOf()
+    private fun queryMediaList(cursor: Cursor): MutableList<Media> {
+        val mediaItems: MutableList<Media> = mutableListOf()
 
         while (cursor.moveToNext()) {
             val absolutePath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA)) ?: continue
 
-            val mediaItem = MFile()
+            val mediaItem = Media()
             mediaItem.mediaPath = absolutePath
 
             val mimeType: String = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE))
@@ -404,7 +403,7 @@ class MediaPreviewStore {
         selection: String,
         selectionArgs: Array<String>,
         sortOrder: String
-    ): MutableList<MFile>? {
+    ): MutableList<Media>? {
         var cursor: Cursor? = null
         try {
             cursor = if (Build.VERSION.SDK_INT >= 30) {
@@ -457,9 +456,9 @@ class MediaPreviewStore {
      * @return 媒体目录的列表
      * */
     @SuppressLint("Range")
-    private fun queryMediaList2(cursor: Cursor, loadAlbum: Boolean): MutableList<MFile> {
+    private fun queryMediaList2(cursor: Cursor, loadAlbum: Boolean): MutableList<Media> {
 
-        val mediaItems: MutableList<MFile> = mutableListOf()
+        val mediaItems: MutableList<Media> = mutableListOf()
         val bucketIdMap: MutableMap<Long, Int> = mutableMapOf()
         var needGetVideoCover = true
         var videoTotalCount = 0
@@ -550,7 +549,7 @@ class MediaPreviewStore {
                 }
             }
 
-            val mediaItem = MFile()
+            val mediaItem = Media()
             mediaItem.mediaPath = absolutePath
             mediaItem.name = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME))
             mediaItem.size = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns.SIZE))

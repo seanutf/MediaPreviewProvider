@@ -2,9 +2,7 @@ package com.seanutf.mediapreviewprovider.config
 
 import com.seanutf.mediapreviewprovider.SelectMode
 import com.seanutf.mediapreviewprovider.data.ImgFormat
-import com.seanutf.mediapreviewprovider.data.MFile
 import com.seanutf.mediapreviewprovider.data.VideoFormat
-import java.io.Serializable
 
 
 class QueryConfig {
