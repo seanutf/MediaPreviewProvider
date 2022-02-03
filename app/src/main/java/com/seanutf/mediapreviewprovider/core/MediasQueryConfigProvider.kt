@@ -2,35 +2,35 @@ package com.seanutf.mediapreviewprovider.core
 
 import android.net.Uri
 import android.provider.MediaStore
-import com.seanutf.mediapreviewprovider.SelectMode
+import com.seanutf.mediapreviewprovider.QueryMode
 import com.seanutf.mediapreviewprovider.config.QueryConfig
 
 class MediasQueryConfigProvider {
     private var queryConfig: QueryConfig? = null
 
-    private val orderBy:String = MediaStore.Files.FileColumns.DATE_MODIFIED +" DESC"
+    private val orderBy: String = MediaStore.Files.FileColumns.DATE_MODIFIED + " DESC"
 
     fun setConfig(queryConfig: QueryConfig?) {
         this.queryConfig = queryConfig
     }
 
-    fun getOrderBy(): String{
+    fun getOrderBy(): String {
         return orderBy
     }
 
     fun getMediasUri(): Uri {
         val uri: Uri
-        when(queryConfig?.mode ?: SelectMode.IMG){
+        when (queryConfig?.mode ?: QueryMode.IMG) {
 
-            SelectMode.IMG -> {
+            QueryMode.IMG -> {
                 uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             }
 
-            SelectMode.VIDEO -> {
+            QueryMode.VIDEO -> {
                 uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
             }
 
-            SelectMode.ALL -> {
+            QueryMode.ALL -> {
                 uri = MediaStore.Files.getContentUri("external")
             }
 
@@ -44,17 +44,17 @@ class MediasQueryConfigProvider {
 
     fun getMediasProjection(): Array<String>? {
         val albumProjection: Array<String>?
-        when(queryConfig?.mode ?: SelectMode.IMG){
+        when (queryConfig?.mode ?: QueryMode.IMG) {
 
-            SelectMode.IMG -> {
+            QueryMode.IMG -> {
                 albumProjection = getAlbumProjectionForImages()
             }
 
-            SelectMode.VIDEO -> {
+            QueryMode.VIDEO -> {
                 albumProjection = getAlbumProjectionForVideos()
             }
 
-            SelectMode.ALL -> {
+            QueryMode.ALL -> {
                 albumProjection = getAlbumProjectionForAllMedias()
             }
 
@@ -69,19 +69,20 @@ class MediasQueryConfigProvider {
     private fun getAlbumProjectionForImages(): Array<String>? {
         //return null
         return arrayOf(
-                MediaStore.Files.FileColumns._ID,
-                MediaStore.MediaColumns.DATA,
-                MediaStore.MediaColumns.MIME_TYPE,
-                MediaStore.MediaColumns.WIDTH,
-                MediaStore.MediaColumns.HEIGHT,
-                MediaStore.Video.Media.DURATION,
-                MediaStore.MediaColumns.SIZE,
-                MediaStore.MediaColumns.BUCKET_DISPLAY_NAME,
-                MediaStore.MediaColumns.DISPLAY_NAME,
-                MediaStore.MediaColumns.DATE_MODIFIED,
-                MediaStore.Video.Media.ARTIST,
-                "bucket_id",
-                MediaStore.MediaColumns.DATE_ADDED)
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.MediaColumns.DATA,
+            MediaStore.MediaColumns.MIME_TYPE,
+            MediaStore.MediaColumns.WIDTH,
+            MediaStore.MediaColumns.HEIGHT,
+            MediaStore.Video.Media.DURATION,
+            MediaStore.MediaColumns.SIZE,
+            MediaStore.MediaColumns.BUCKET_DISPLAY_NAME,
+            MediaStore.MediaColumns.DISPLAY_NAME,
+            MediaStore.MediaColumns.DATE_MODIFIED,
+            MediaStore.Video.Media.ARTIST,
+            "bucket_id",
+            MediaStore.MediaColumns.DATE_ADDED
+        )
         //使用下面注释的代码不能正确的返回结果值，待查
 //        return if(RunTimeVersionUtil.isLargeApi29()){
 //            arrayOf(
@@ -103,19 +104,20 @@ class MediasQueryConfigProvider {
     private fun getAlbumProjectionForVideos(): Array<String>? {
         //return null
         return arrayOf(
-                MediaStore.Files.FileColumns._ID,
-                MediaStore.MediaColumns.DATA,
-                MediaStore.MediaColumns.MIME_TYPE,
-                MediaStore.MediaColumns.WIDTH,
-                MediaStore.MediaColumns.HEIGHT,
-                MediaStore.Video.Media.DURATION,
-                MediaStore.MediaColumns.SIZE,
-                MediaStore.MediaColumns.BUCKET_DISPLAY_NAME,
-                MediaStore.MediaColumns.DISPLAY_NAME,
-                MediaStore.MediaColumns.DATE_MODIFIED,
-                MediaStore.Video.Media.ARTIST,
-                "bucket_id",
-                MediaStore.MediaColumns.DATE_ADDED)
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.MediaColumns.DATA,
+            MediaStore.MediaColumns.MIME_TYPE,
+            MediaStore.MediaColumns.WIDTH,
+            MediaStore.MediaColumns.HEIGHT,
+            MediaStore.Video.Media.DURATION,
+            MediaStore.MediaColumns.SIZE,
+            MediaStore.MediaColumns.BUCKET_DISPLAY_NAME,
+            MediaStore.MediaColumns.DISPLAY_NAME,
+            MediaStore.MediaColumns.DATE_MODIFIED,
+            MediaStore.Video.Media.ARTIST,
+            "bucket_id",
+            MediaStore.MediaColumns.DATE_ADDED
+        )
         //使用下面注释的代码不能正确的返回结果值，待查
 //        return if(RunTimeVersionUtil.isLargeApi29()){
 //            arrayOf(
@@ -137,19 +139,20 @@ class MediasQueryConfigProvider {
     private fun getAlbumProjectionForAllMedias(): Array<String>? {
         //return null
         return arrayOf(
-                MediaStore.Files.FileColumns._ID,
-                MediaStore.MediaColumns.DATA,
-                MediaStore.MediaColumns.MIME_TYPE,
-                MediaStore.MediaColumns.WIDTH,
-                MediaStore.MediaColumns.HEIGHT,
-                MediaStore.Video.Media.DURATION,
-                MediaStore.MediaColumns.SIZE,
-                MediaStore.MediaColumns.BUCKET_DISPLAY_NAME,
-                MediaStore.MediaColumns.DISPLAY_NAME,
-                MediaStore.MediaColumns.DATE_MODIFIED,
-                MediaStore.Video.Media.ARTIST,
-                "bucket_id",
-                MediaStore.MediaColumns.DATE_ADDED)
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.MediaColumns.DATA,
+            MediaStore.MediaColumns.MIME_TYPE,
+            MediaStore.MediaColumns.WIDTH,
+            MediaStore.MediaColumns.HEIGHT,
+            MediaStore.Video.Media.DURATION,
+            MediaStore.MediaColumns.SIZE,
+            MediaStore.MediaColumns.BUCKET_DISPLAY_NAME,
+            MediaStore.MediaColumns.DISPLAY_NAME,
+            MediaStore.MediaColumns.DATE_MODIFIED,
+            MediaStore.Video.Media.ARTIST,
+            "bucket_id",
+            MediaStore.MediaColumns.DATE_ADDED
+        )
 //        return if(RunTimeVersionUtil.isLargeApi29()){
 //            arrayOf(
 //                    MediaStore.Files.FileColumns._ID,
@@ -167,19 +170,19 @@ class MediasQueryConfigProvider {
 //        }
     }
 
-    fun getSelection(bucketId: Long): String {
-        val selection: String
-        when(queryConfig?.mode ?: SelectMode.IMG){
+    fun getSelection(bucketId: Long): String? {
+        val selection: String?
+        when (queryConfig?.mode ?: QueryMode.IMG) {
 
-            SelectMode.IMG -> {
+            QueryMode.IMG -> {
                 selection = getSelectionForImages(bucketId)
             }
 
-            SelectMode.VIDEO -> {
+            QueryMode.VIDEO -> {
                 selection = getSelectionForVideos(bucketId)
             }
 
-            SelectMode.ALL -> {
+            QueryMode.ALL -> {
                 selection = getSelectionForAllMedias(bucketId)
             }
 
@@ -192,48 +195,122 @@ class MediasQueryConfigProvider {
     }
 
     private fun getSelectionForAllMedias(bucketId: Long): String {
-        return if(bucketId == -1L){
-            "(media_type=? AND (mime_type='image/png' OR mime_type='image/jpeg') OR media_type=? AND mime_type='video/mp4')"
+        return if (bucketId == -1L) {
+            "(media_type=?${buildSelectionImgMineTypesForAllMedias()} OR media_type=?${buildSelectionVideoMineTypesForAllMedias()}')"
         } else if (bucketId == -2L) {
-            (MediaStore.Video.Media.MIME_TYPE + "=?")
+            "(media_type=?${buildSelectionVideoMineTypesForAllMedias()}')"
         } else {
-            "(media_type=? AND (mime_type='image/png' OR mime_type='image/jpeg') OR media_type=? AND mime_type='video/mp4') AND bucket_id=?"
+            "(media_type=?${buildSelectionImgMineTypesForAllMedias()} OR media_type=?${buildSelectionVideoMineTypesForAllMedias()}') AND bucket_id=?"
         }
     }
 
-    private fun getSelectionForImages(bucketId: Long): String {
-        return if(bucketId == -1L){
-            (MediaStore.Images.Media.MIME_TYPE + "=? or "
-                    + MediaStore.Images.Media.MIME_TYPE + "=?")
+    private fun buildSelectionImgMineTypesForAllMedias() = buildString {
+        if (queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
+            ""
         } else {
-            (MediaStore.Images.Media.MIME_TYPE + "=? or "
-                    + MediaStore.Images.Media.MIME_TYPE + "=? AND "
-                    + "bucket_id=?")
-        }
-
-    }
-
-    private fun getSelectionForVideos(bucketId: Long): String {
-        return if(bucketId == -1L){
-            (MediaStore.Video.Media.MIME_TYPE + "=?")
-        } else {
-            (MediaStore.Video.Media.MIME_TYPE + "=? AND" + "bucket_id=?")
+            append(" AND ")
+            append("(")
+            for ((index, type) in (queryConfig?.imgQueryFormatArray ?: return@buildString).withIndex()) {
+                append(MediaStore.Images.Media.MIME_TYPE + "=?")
+                if (index != (queryConfig?.imgQueryFormatArray ?: return@buildString).size - 1){
+                    append(" OR ")
+                }
+            }
+            append(")")
         }
     }
 
-    fun getSelectionArgs(bucketId: Long): Array<String> {
-        val selectionArgs: Array<String>
-        when(queryConfig?.mode ?: SelectMode.IMG){
+    private fun buildSelectionVideoMineTypesForAllMedias() = buildString {
+        if (queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+            ""
+        } else {
+            append(" AND ")
+            append("(")
+            for ((index, type) in (queryConfig?.videoQueryFormatArray ?: return@buildString).withIndex()) {
+                append(MediaStore.Video.Media.MIME_TYPE + "=?")
+                if (index != (queryConfig?.videoQueryFormatArray ?: return@buildString).size - 1){
+                    append(" OR ")
+                }
+            }
+            append(")")
+        }
+    }
 
-            SelectMode.IMG -> {
+    private fun getSelectionForImages(bucketId: Long): String? {
+        return if (bucketId == -1L) {
+            if (queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
+                null
+            } else {
+                val builderStr = StringBuilder()
+                for ((index, type) in ((queryConfig?.imgQueryFormatArray) ?: return null).withIndex()) {
+                    builderStr.append(MediaStore.Images.Media.MIME_TYPE + "=?")
+                    if (index != (queryConfig?.imgQueryFormatArray ?: return null).size - 1){
+                        builderStr.append(" OR ")
+                    }
+                }
+                builderStr.toString()
+            }
+        } else {
+            if (queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
+                "bucket_id=?"
+            } else {
+                val builderStr = StringBuilder()
+                for ((index, type) in (queryConfig?.imgQueryFormatArray ?: return null).withIndex()) {
+                    builderStr.append(MediaStore.Images.Media.MIME_TYPE + "=?")
+                    if (index != (queryConfig?.imgQueryFormatArray ?: return null).size - 1){
+                        builderStr.append(" OR ")
+                    }
+                }
+                builderStr.append(" AND bucket_id=?")
+                builderStr.toString()
+            }
+        }
+    }
+
+    private fun getSelectionForVideos(bucketId: Long): String? {
+        return if (bucketId == -1L) {
+            if (queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+                null
+            } else {
+                val builderStr = StringBuilder()
+                for ((index, type) in ((queryConfig?.videoQueryFormatArray) ?: return null).withIndex()) {
+                    builderStr.append(MediaStore.Video.Media.MIME_TYPE + "=?")
+                    if (index != (queryConfig?.videoQueryFormatArray ?: return null).size - 1){
+                        builderStr.append(" OR ")
+                    }
+                }
+                builderStr.toString()
+            }
+        } else {
+            if (queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+                "bucket_id=?"
+            } else {
+                val builderStr = StringBuilder()
+                for ((index, type) in (queryConfig?.videoQueryFormatArray ?: return null).withIndex()) {
+                    builderStr.append(MediaStore.Video.Media.MIME_TYPE + "=?")
+                    if (index != (queryConfig?.videoQueryFormatArray ?: return null).size - 1){
+                        builderStr.append(" OR ")
+                    }
+                }
+                builderStr.append(" AND bucket_id=?")
+                builderStr.toString()
+            }
+        }
+    }
+
+    fun getSelectionArgs(bucketId: Long): Array<String>? {
+        val selectionArgs: Array<String>?
+        when (queryConfig?.mode ?: QueryMode.IMG) {
+
+            QueryMode.IMG -> {
                 selectionArgs = getSelectionArgsForImages(bucketId)
             }
 
-            SelectMode.VIDEO -> {
+            QueryMode.VIDEO -> {
                 selectionArgs = getSelectionArgsForVideos(bucketId)
             }
 
-            SelectMode.ALL -> {
+            QueryMode.ALL -> {
                 selectionArgs = getSelectionArgsForAllMedias(bucketId)
             }
 
@@ -250,39 +327,95 @@ class MediasQueryConfigProvider {
      *
      * @return
      */
-    private fun getSelectionArgsForAllMedias(bucketId: Long): Array<String> {
+    private fun getSelectionArgsForAllMedias(bucketId: Long): Array<String>? {
+        val argsArr = emptyArray<String>()
         return if (bucketId == -1L) {
-            arrayOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(), MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString())
+            //没有指定具体目录，为全部
+            argsArr.plus(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString())
+
+            if (!queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
+                argsArr.plus((queryConfig ?: return null).imgQueryFormatArray ?: return null)
+            }
+
+            argsArr.plus(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString())
+
+            if (!queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+                argsArr.plus((queryConfig ?: return null).videoQueryFormatArray ?: return null)
+            }
+
+            argsArr
         } else if (bucketId == -2L) {
-            arrayOf("video/mp4")
+            argsArr.plus(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString())
+            if (!queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+                argsArr.plus((queryConfig ?: return null).videoQueryFormatArray ?: return null)
+            }
+            argsArr
         } else {
-            arrayOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(), MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString(), bucketId.toString())
+            argsArr.plus(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString())
+
+            if (!queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
+                argsArr.plus((queryConfig ?: return null).imgQueryFormatArray ?: return null)
+            }
+
+            argsArr.plus(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString())
+
+            if (!queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+                argsArr.plus((queryConfig ?: return null).videoQueryFormatArray ?: return null)
+            }
+
+            argsArr.plus(bucketId.toString())
         }
     }
 
     /**
-     * Gets a file of the specified type
+     * 获取 查找图片媒体 的参数值
+     * bucketId == -1L 为整个媒体库
+     * queryConfig?.imgQueryFormatArray的值为null就是不限制视频文件格式
+     * 不为null就是按设置值查找
+     * bucketId != -1L 为特定目录
+     * queryConfig?.imgQueryFormatArray的值为null就直接返回目录
+     * queryConfig?.imgQueryFormatArray的值不为null就直接加上目录
      *
-     * @return
+     * @return 图片格式加目录的字符串数组
      */
-    private fun getSelectionArgsForImages(bucketId: Long): Array<String> {
-        return if(bucketId == -1L) {
-            arrayOf("image/png", "image/jpeg")
+    private fun getSelectionArgsForImages(bucketId: Long): Array<String>? {
+        return if (bucketId == -1L) {
+            //没有指定具体目录，为全部
+            queryConfig?.imgQueryFormatArray
         } else {
-            arrayOf("image/png", "image/jpeg", bucketId.toString())
+            //指定某个具体目录
+            val argsArr = if (queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
+                arrayOf(bucketId.toString())
+            } else {
+                queryConfig?.imgQueryFormatArray?.plus(bucketId.toString())
+            }
+            argsArr
         }
     }
 
     /**
-     * Gets a file of the specified type
+     * 获取 查找视频媒体 的参数值
+     * bucketId == -1L 为整个媒体库
+     * queryConfig?.videoQueryFormatArray的值为null就是不限制视频文件格式
+     * 不为null就是按设置值查找
+     * bucketId != -1L 为特定目录
+     * queryConfig?.videoQueryFormatArray的值为null就直接返回目录
+     * queryConfig?.videoQueryFormatArray的值不为null就直接加上目录
      *
-     * @return
+     * @return 视频格式加目录的字符串数组
      */
-    private fun getSelectionArgsForVideos(bucketId: Long): Array<String> {
-        return if(bucketId == -1L) {
-            arrayOf("video/mp4")
+    private fun getSelectionArgsForVideos(bucketId: Long): Array<String>? {
+        return if (bucketId == -1L) {
+            //没有指定具体目录，为全部
+            queryConfig?.videoQueryFormatArray
         } else {
-            arrayOf("video/mp4", bucketId.toString())
+            //指定某个具体目录
+            val argsArr = if (queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+                arrayOf(bucketId.toString())
+            } else {
+                queryConfig?.videoQueryFormatArray?.plus(bucketId.toString())
+            }
+            argsArr
         }
     }
 

@@ -1,6 +1,6 @@
 package com.seanutf.mediapreviewprovider.config
 
-import com.seanutf.mediapreviewprovider.SelectMode
+import com.seanutf.mediapreviewprovider.QueryMode
 import com.seanutf.mediapreviewprovider.data.ImgFormat
 import com.seanutf.mediapreviewprovider.data.VideoFormat
 
@@ -11,7 +11,7 @@ class QueryConfig {
      * 设置媒体的查找范围
      * 默认查找全部(包括图片和视频，暂不支持音频)
      * */
-    var mode: SelectMode = SelectMode.ALL
+    var mode: QueryMode = QueryMode.ALL
 
     /**
      * 对查找图片的最小宽度要求
@@ -99,15 +99,19 @@ class QueryConfig {
 
     /**
      * 对查找图片的格式设置
-     * 默认jpg和png格式
+     * 默认为null，即查找所有图片格式文件
+     * 如果需指定特定文件格式，请创建
+     * [ImgFormat]数组
      * */
-    var imgQueryFormatArray = arrayOf(ImgFormat.IMG_JPG, ImgFormat.IMG_PNG)
+    var imgQueryFormatArray: Array<String>? = null
 
     /**
      * 对查找视频的格式设置
-     * 默认mp4
+     * 默认为null，即查找所有视频格式文件
+     * 如果需指定特定文件格式，请创建
+     * [VideoFormat]数组
      * */
-    var videoQueryFormatArray = arrayOf(VideoFormat.VIDEO_MP4)
+    var videoQueryFormatArray: Array<String>? = null
 
     /**
      * 设置查找时间范围的开始时间
@@ -126,7 +130,7 @@ class QueryConfig {
     /**
      * 设置媒体列表排序规则是否为创建时间
      * */
-    var sortByCreate = true
+    var sortByCreate = false
 
 
     /**

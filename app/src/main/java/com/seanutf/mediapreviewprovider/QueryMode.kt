@@ -1,7 +1,7 @@
 package com.seanutf.mediapreviewprovider
 
 
-enum class SelectMode{
+enum class QueryMode {
     /**
      * 只扫描图片
      * */

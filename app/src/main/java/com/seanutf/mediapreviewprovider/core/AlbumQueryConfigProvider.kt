@@ -2,7 +2,7 @@ package com.seanutf.mediapreviewprovider.core
 
 import android.net.Uri
 import android.provider.MediaStore
-import com.seanutf.mediapreviewprovider.SelectMode
+import com.seanutf.mediapreviewprovider.QueryMode
 import com.seanutf.mediapreviewprovider.config.QueryConfig
 
 /**
@@ -32,17 +32,17 @@ class AlbumQueryConfigProvider {
 
     fun getAlbumUri(): Uri {
         val uri: Uri
-        when (queryConfig?.mode ?: SelectMode.IMG) {
+        when (queryConfig?.mode ?: QueryMode.IMG) {
 
-            SelectMode.IMG -> {
+            QueryMode.IMG -> {
                 uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             }
 
-            SelectMode.VIDEO -> {
+            QueryMode.VIDEO -> {
                 uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
             }
 
-            SelectMode.ALL -> {
+            QueryMode.ALL -> {
                 uri = MediaStore.Files.getContentUri("external")
             }
 
@@ -56,17 +56,17 @@ class AlbumQueryConfigProvider {
 
     fun getAlbumProjection(): Array<String>? {
         val albumProjection: Array<String>?
-        when (queryConfig?.mode ?: SelectMode.IMG) {
+        when (queryConfig?.mode ?: QueryMode.IMG) {
 
-            SelectMode.IMG -> {
+            QueryMode.IMG -> {
                 albumProjection = getAlbumProjectionForImages()
             }
 
-            SelectMode.VIDEO -> {
+            QueryMode.VIDEO -> {
                 albumProjection = getAlbumProjectionForVideos()
             }
 
-            SelectMode.ALL -> {
+            QueryMode.ALL -> {
                 albumProjection = getAlbumProjectionForAllMedias()
             }
 
@@ -139,17 +139,17 @@ class AlbumQueryConfigProvider {
 
     fun getSelection(): String {
         val selection: String
-        when (queryConfig?.mode ?: SelectMode.IMG) {
+        when (queryConfig?.mode ?: QueryMode.IMG) {
 
-            SelectMode.IMG -> {
+            QueryMode.IMG -> {
                 selection = getSelectionForImages()
             }
 
-            SelectMode.VIDEO -> {
+            QueryMode.VIDEO -> {
                 selection = getSelectionForVideos()
             }
 
-            SelectMode.ALL -> {
+            QueryMode.ALL -> {
                 selection = getSelectionForAllMedias()
             }
 
@@ -162,7 +162,33 @@ class AlbumQueryConfigProvider {
     }
 
     private fun getSelectionForAllMedias(): String {
-        return "(media_type=? AND (mime_type='image/png' OR mime_type='image/jpeg')) OR media_type=? AND (mime_type='video/mp4')"
+        return "(media_type=? AND (${buildImgMimeTypes()})) OR (media_type=? AND (${buildVideoMimeTypes()}))"
+    }
+
+    private fun buildImgMimeTypes() = buildString {
+        if (!queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
+            for ((index, type) in (queryConfig?.imgQueryFormatArray ?: return@buildString).withIndex()) {
+                append("mime_type='${type}'")
+                if (index != (queryConfig?.imgQueryFormatArray ?: return@buildString).size - 1){
+                    append(" OR ")
+                }
+            }
+        } else {
+            append("mime_type='image/png' OR mime_type='image/jpeg'")
+        }
+    }
+
+    private fun buildVideoMimeTypes() = buildString {
+        if (!queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+            for ((index, type) in (queryConfig?.videoQueryFormatArray ?: return@buildString).withIndex()) {
+                append("mime_type='${type}'")
+                if (index != (queryConfig?.videoQueryFormatArray ?: return@buildString).size - 1){
+                    append(" OR ")
+                }
+            }
+        } else {
+            append("mime_type='video/mp4'")
+        }
     }
 
     private fun getSelectionForImages(): String {
@@ -176,17 +202,17 @@ class AlbumQueryConfigProvider {
 
     fun getSelectionArgs(): Array<String> {
         val selectionArgs: Array<String>
-        when (queryConfig?.mode ?: SelectMode.IMG) {
+        when (queryConfig?.mode ?: QueryMode.IMG) {
 
-            SelectMode.IMG -> {
+            QueryMode.IMG -> {
                 selectionArgs = getSelectionArgsForImages()
             }
 
-            SelectMode.VIDEO -> {
+            QueryMode.VIDEO -> {
                 selectionArgs = getSelectionArgsForVideos()
             }
 
-            SelectMode.ALL -> {
+            QueryMode.ALL -> {
                 selectionArgs = getSelectionArgsForAllMedias()
             }
 
@@ -199,30 +225,30 @@ class AlbumQueryConfigProvider {
     }
 
     /**
-     * Gets a file of the specified type
-     *
-     * @return
+     * 获取查找所有媒体的参数值
+     * @return 外部配置指定类型，默认媒体库默认
      */
     private fun getSelectionArgsForAllMedias(): Array<String> {
-        return arrayOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(), MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString())
+        return arrayOf(
+            MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(),
+            MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString()
+        )
     }
 
     /**
-     * Gets a file of the specified type
-     *
-     * @return
+     * 获取查找图片的参数值
+     * @return 外部配置指定类型，默认png和jpg
      */
     private fun getSelectionArgsForImages(): Array<String> {
-        return arrayOf("image/png", "image/jpeg")
+        return queryConfig?.imgQueryFormatArray ?: arrayOf("image/png", "image/jpeg")
     }
 
     /**
-     * Gets a file of the specified type
-     *
-     * @return
+     * 获取查找视频的参数值
+     * @return 外部配置指定类型，默认mp4
      */
     private fun getSelectionArgsForVideos(): Array<String> {
-        return arrayOf("video/mp4")
+        return queryConfig?.videoQueryFormatArray ?: arrayOf("video/mp4")
     }
 
 }

@@ -9,7 +9,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import com.seanutf.mediapreviewprovider.ProviderContext
-import com.seanutf.mediapreviewprovider.SelectMode
+import com.seanutf.mediapreviewprovider.QueryMode
 import com.seanutf.mediapreviewprovider.config.QueryConfig
 import com.seanutf.mediapreviewprovider.data.Album
 import com.seanutf.mediapreviewprovider.data.Media
@@ -80,7 +80,7 @@ class MediaPreviewStore {
             while (cursor.moveToNext()) {
                 val bucketId: Long = cursor.getLong(cursor.getColumnIndex("bucket_id"))
                 val mimeType: String = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE))
-                if (queryConfig?.mode == SelectMode.ALL && !mimeType.startsWith("image")) {
+                if (queryConfig?.mode == QueryMode.ALL && !mimeType.startsWith("image")) {
                     videoTotalCount += 1
                 }
                 var newCount = countMap[bucketId]
@@ -148,7 +148,7 @@ class MediaPreviewStore {
 
 
             when (queryConfig?.mode) {
-                SelectMode.IMG -> {
+                QueryMode.IMG -> {
                     // 所有图片文件夹
                     val allImageAlbum = generateAllImageAlbum(cursor, totalCount)
                     allImageAlbum.isChecked = true
@@ -156,7 +156,7 @@ class MediaPreviewStore {
                     mediaAlbums.add(0, allImageAlbum)
                 }
 
-                SelectMode.VIDEO -> {
+                QueryMode.VIDEO -> {
                     // 所有视频文件夹
                     val allVideoAlbum = generateAllVideoAlbum(cursor, totalCount)
                     allVideoAlbum.isChecked = true
@@ -164,7 +164,7 @@ class MediaPreviewStore {
                     mediaAlbums.add(0, allVideoAlbum)
                 }
 
-                SelectMode.ALL -> {
+                QueryMode.ALL -> {
                     // 图片和视频文件夹
                     val allMediaAlbum = generateAllMediaAlbum(cursor, totalCount)
                     allMediaAlbum.isChecked = true
@@ -328,8 +328,8 @@ class MediaPreviewStore {
     fun queryMedias(
         mediaUri: Uri,
         projection: Array<String>?,
-        selection: String,
-        selectionArgs: Array<String>,
+        selection: String?,
+        selectionArgs: Array<String>?,
         sortOrder: String
     ): MutableList<Media>? {
         var cursor: Cursor? = null
@@ -400,8 +400,8 @@ class MediaPreviewStore {
         loadAlbum: Boolean,
         mediaUri: Uri,
         projection: Array<String>?,
-        selection: String,
-        selectionArgs: Array<String>,
+        selection: String?,
+        selectionArgs: Array<String>?,
         sortOrder: String
     ): MutableList<Media>? {
         var cursor: Cursor? = null
@@ -438,7 +438,7 @@ class MediaPreviewStore {
      * @param offset
      * @return
      */
-    private fun createQueryArgsBundle(selection: String, selectionArgs: Array<String>): Bundle {
+    private fun createQueryArgsBundle(selection: String?, selectionArgs: Array<String>?): Bundle {
         val queryArgs = Bundle()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             queryArgs.putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
@@ -482,9 +482,9 @@ class MediaPreviewStore {
             val mimeType: String = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE))
 
             if (loadAlbum) {
-                when (queryConfig?.mode ?: SelectMode.IMG) {
+                when (queryConfig?.mode ?: QueryMode.IMG) {
 
-                    SelectMode.IMG -> {
+                    QueryMode.IMG -> {
                         allImageAlbum.bucketId = -1
                         if (cursor.isFirst) {
                             allImageAlbum.firstImagePath = getFirstUrl(cursor)
@@ -495,7 +495,7 @@ class MediaPreviewStore {
                         }
                     }
 
-                    SelectMode.VIDEO -> {
+                    QueryMode.VIDEO -> {
                         allVideoAlbum.bucketId = -1
                         if (cursor.isFirst) {
                             allVideoAlbum.firstImagePath = getFirstUrl(cursor)
@@ -506,7 +506,7 @@ class MediaPreviewStore {
                         }
                     }
 
-                    SelectMode.ALL -> {
+                    QueryMode.ALL -> {
                         allMediaAlbum.bucketId = -1
                         allVideoAlbum.bucketId = -2
 
@@ -538,7 +538,7 @@ class MediaPreviewStore {
 
                 bucketIdMap[-1] = bucketIdMap[-1]?.plus(1) ?: 1
 
-                if (queryConfig?.mode == SelectMode.ALL && mimeType.startsWith("video")) {
+                if (queryConfig?.mode == QueryMode.ALL && mimeType.startsWith("video")) {
                     videoTotalCount += 1
 
                     if (mediaAlbums.size >= 2 && needGetVideoCover) {
@@ -600,7 +600,7 @@ class MediaPreviewStore {
 
             allAlbumList = mediaAlbums
 
-            if (queryConfig?.mode == SelectMode.ALL && mediaAlbums.size >= 2) {
+            if (queryConfig?.mode == QueryMode.ALL && mediaAlbums.size >= 2) {
                 mediaAlbums[1].count = videoTotalCount
             }
         }

@@ -7,10 +7,10 @@ package com.seanutf.mediapreviewprovider.data;
  */
 public class VideoFormat {
 
-    public static final String VIDEO_MP4 = ".mp4";
-    public static final String VIDEO_MKV = ".mkv";
-    public static final String VIDEO_WEBM = ".webm";
-    public static final String VIDEO_MOV = ".mov";
-    public static final String VIDEO_WMV = ".wmv";
-    public static final String VIDEO_AVI = ".avi";
+    public static final String VIDEO_MP4 = "video/mp4";
+    public static final String VIDEO_MKV = "video/mkv";
+    public static final String VIDEO_WEBM = "video/webm";
+    public static final String VIDEO_MOV = "video/mov";
+    public static final String VIDEO_WMV = "video/wmv";
+    public static final String VIDEO_AVI = "video/avi";
 }

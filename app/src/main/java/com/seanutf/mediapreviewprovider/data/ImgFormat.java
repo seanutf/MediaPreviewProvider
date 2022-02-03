@@ -6,9 +6,9 @@ package com.seanutf.mediapreviewprovider.data;
  * @Desc 图片格式
  */
 public class ImgFormat {
-    public static final String IMG_JPG = ".jpg";
-    public static final String IMG_PNG = ".png";
-    public static final String IMG_GIF = ".gif";
-    public static final String IMG_HEIF = ".heif";
-    public static final String IMG_AVIF = ".avif";
+    public static final String IMG_JPG = "image/jpeg";
+    public static final String IMG_PNG = "image/png";
+    public static final String IMG_GIF = "image/gif";
+    public static final String IMG_HEIF = "image/heif";
+    public static final String IMG_AVIF = "image/avif";
 }
