@@ -10,7 +10,7 @@ import android.provider.MediaStore
 import android.util.Log
 import com.seanutf.mediapreviewprovider.ProviderContext
 import com.seanutf.mediapreviewprovider.SelectMode
-import com.seanutf.mediapreviewprovider.config.DataConfig
+import com.seanutf.mediapreviewprovider.config.QueryConfig
 import com.seanutf.mediapreviewprovider.data.Album
 import com.seanutf.mediapreviewprovider.data.MFile
 import com.seanutf.mediapreviewprovider.data.Media
@@ -18,16 +18,16 @@ import java.util.*
 
 class MediaPreviewStore {
 
-    private var dataConfig: DataConfig? = null
+    private var queryConfig: QueryConfig? = null
     private var allAlbumList: List<Album>? = null
 
     /**
      * 设置查找的数据参数
      *
-     * [dataConfig] 查找数据的参数配置
+     * [queryConfig] 查找数据的参数配置
      * */
-    fun setConfig(dataConfig: DataConfig?) {
-        this.dataConfig = dataConfig
+    fun setConfig(queryConfig: QueryConfig?) {
+        this.queryConfig = queryConfig
     }
 
     /**
@@ -81,7 +81,7 @@ class MediaPreviewStore {
             while (cursor.moveToNext()) {
                 val bucketId: Long = cursor.getLong(cursor.getColumnIndex("bucket_id"))
                 val mimeType: String = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE))
-                if (dataConfig?.mode == SelectMode.ALL && !mimeType.startsWith("image")) {
+                if (queryConfig?.mode == SelectMode.ALL && !mimeType.startsWith("image")) {
                     videoTotalCount += 1
                 }
                 var newCount = countMap[bucketId]
@@ -148,7 +148,7 @@ class MediaPreviewStore {
 //            }
 
 
-            when (dataConfig?.mode) {
+            when (queryConfig?.mode) {
                 SelectMode.IMG -> {
                     // 所有图片文件夹
                     val allImageAlbum = generateAllImageAlbum(cursor, totalCount)
@@ -483,7 +483,7 @@ class MediaPreviewStore {
             val mimeType: String = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE))
 
             if (loadAlbum) {
-                when (dataConfig?.mode ?: SelectMode.IMG) {
+                when (queryConfig?.mode ?: SelectMode.IMG) {
 
                     SelectMode.IMG -> {
                         allImageAlbum.bucketId = -1
@@ -539,7 +539,7 @@ class MediaPreviewStore {
 
                 bucketIdMap[-1] = bucketIdMap[-1]?.plus(1) ?: 1
 
-                if (dataConfig?.mode == SelectMode.ALL && mimeType.startsWith("video")) {
+                if (queryConfig?.mode == SelectMode.ALL && mimeType.startsWith("video")) {
                     videoTotalCount += 1
 
                     if (mediaAlbums.size >= 2 && needGetVideoCover) {
@@ -601,7 +601,7 @@ class MediaPreviewStore {
 
             allAlbumList = mediaAlbums
 
-            if (dataConfig?.mode == SelectMode.ALL && mediaAlbums.size >= 2) {
+            if (queryConfig?.mode == SelectMode.ALL && mediaAlbums.size >= 2) {
                 mediaAlbums[1].count = videoTotalCount
             }
         }

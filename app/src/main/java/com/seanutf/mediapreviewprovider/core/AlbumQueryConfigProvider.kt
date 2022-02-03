@@ -3,7 +3,7 @@ package com.seanutf.mediapreviewprovider.core
 import android.net.Uri
 import android.provider.MediaStore
 import com.seanutf.mediapreviewprovider.SelectMode
-import com.seanutf.mediapreviewprovider.config.DataConfig
+import com.seanutf.mediapreviewprovider.config.QueryConfig
 
 /**
  * 媒体选择器中
@@ -18,12 +18,12 @@ import com.seanutf.mediapreviewprovider.config.DataConfig
  * 记得检查另一方代码是否需要配合修改
  * */
 class AlbumQueryConfigProvider {
-    private var dataConfig: DataConfig? = null
+    private var queryConfig: QueryConfig? = null
 
     private val orderBy: String = MediaStore.Files.FileColumns.DATE_ADDED + " DESC"
 
-    fun setConfig(dataConfig: DataConfig?) {
-        this.dataConfig = dataConfig
+    fun setConfig(queryConfig: QueryConfig?) {
+        this.queryConfig = queryConfig
     }
 
     fun getOrderBy(): String {
@@ -32,7 +32,7 @@ class AlbumQueryConfigProvider {
 
     fun getAlbumUri(): Uri {
         val uri: Uri
-        when (dataConfig?.mode ?: SelectMode.IMG) {
+        when (queryConfig?.mode ?: SelectMode.IMG) {
 
             SelectMode.IMG -> {
                 uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -56,7 +56,7 @@ class AlbumQueryConfigProvider {
 
     fun getAlbumProjection(): Array<String>? {
         val albumProjection: Array<String>?
-        when (dataConfig?.mode ?: SelectMode.IMG) {
+        when (queryConfig?.mode ?: SelectMode.IMG) {
 
             SelectMode.IMG -> {
                 albumProjection = getAlbumProjectionForImages()
@@ -139,7 +139,7 @@ class AlbumQueryConfigProvider {
 
     fun getSelection(): String {
         val selection: String
-        when (dataConfig?.mode ?: SelectMode.IMG) {
+        when (queryConfig?.mode ?: SelectMode.IMG) {
 
             SelectMode.IMG -> {
                 selection = getSelectionForImages()
@@ -176,7 +176,7 @@ class AlbumQueryConfigProvider {
 
     fun getSelectionArgs(): Array<String> {
         val selectionArgs: Array<String>
-        when (dataConfig?.mode ?: SelectMode.IMG) {
+        when (queryConfig?.mode ?: SelectMode.IMG) {
 
             SelectMode.IMG -> {
                 selectionArgs = getSelectionArgsForImages()
