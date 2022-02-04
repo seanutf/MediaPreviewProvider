@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import androidx.core.database.getStringOrNull
 import com.seanutf.mediapreviewprovider.QueryMode
 import com.seanutf.mediapreviewprovider.config.QueryConfig
 import com.seanutf.mediapreviewprovider.data.Album
@@ -473,7 +474,7 @@ class MediaPreviewStore {
 
 
         while (cursor.moveToNext()) {
-            val absolutePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)) ?: continue
+            val absolutePath = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)) ?: continue
 
             if (absolutePath.contains("_.thumbnails") || absolutePath.contains("thumb")) {
                 continue
@@ -481,7 +482,13 @@ class MediaPreviewStore {
 
             val bucketId: Long = cursor.getLong(cursor.getColumnIndexOrThrow("bucket_id"))
             val bucketDisplayName: String? = cursor.getString(cursor.getColumnIndexOrThrow("bucket_display_name"))
-            val mimeType: String = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
+
+            val mimeType: String? = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
+
+            if (mimeType == null) {
+                Log.i("MediaPreviewProvider", "this file not has mimeType: $absolutePath")
+                continue
+            }
 
             if (loadAlbum) {
                 when (queryConfig?.mode ?: QueryMode.IMG) {
