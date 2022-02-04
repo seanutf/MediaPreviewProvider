@@ -290,7 +290,7 @@ class MediaPreviewStore {
      */
     @SuppressLint("Range")
     private fun getFirstUrl(cursor: Cursor): String {
-        return cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA))
+        return cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
     }
 
     /**
@@ -301,7 +301,7 @@ class MediaPreviewStore {
      */
     @SuppressLint("Range")
     private fun getFirstCoverMimeType(cursor: Cursor): String {
-        return cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE))
+        return cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE))
     }
 
     /**
@@ -473,15 +473,15 @@ class MediaPreviewStore {
 
 
         while (cursor.moveToNext()) {
-            val absolutePath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA)) ?: continue
+            val absolutePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)) ?: continue
 
             if (absolutePath.contains("_.thumbnails") || absolutePath.contains("thumb")) {
                 continue
             }
 
-            val bucketId: Long = cursor.getLong(cursor.getColumnIndex("bucket_id"))
-            val bucketDisplayName: String? = cursor.getString(cursor.getColumnIndex("bucket_display_name"))
-            val mimeType: String = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE))
+            val bucketId: Long = cursor.getLong(cursor.getColumnIndexOrThrow("bucket_id"))
+            val bucketDisplayName: String? = cursor.getString(cursor.getColumnIndexOrThrow("bucket_display_name"))
+            val mimeType: String = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
 
             if (loadAlbum) {
                 when (queryConfig?.mode ?: QueryMode.IMG) {
@@ -553,11 +553,11 @@ class MediaPreviewStore {
 
             val mediaItem = Media()
             mediaItem.mediaPath = absolutePath
-            mediaItem.name = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME))
-            mediaItem.size = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns.SIZE))
-            mediaItem.mediaWidth = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns.WIDTH))
-            mediaItem.mediaHeight = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns.HEIGHT))
-            mediaItem.dateModified = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns.DATE_MODIFIED))
+            mediaItem.name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+            mediaItem.size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+            mediaItem.mediaWidth = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.WIDTH))
+            mediaItem.mediaHeight = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.HEIGHT))
+            mediaItem.dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED))
 
             if (mimeType.contains("video")) {
 //                var tt1 :String? = null
@@ -576,7 +576,7 @@ class MediaPreviewStore {
 
                 val tt = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION))
                 mediaItem.duration = tt
-                mediaItem.artist = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.ARTIST))
+                mediaItem.artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.ARTIST))
             }
 
 
