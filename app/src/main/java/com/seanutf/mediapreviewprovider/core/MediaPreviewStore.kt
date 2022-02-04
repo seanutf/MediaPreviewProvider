@@ -488,24 +488,10 @@ class MediaPreviewStore {
             var mimeType: String? = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
 
             if (mimeType == null) {
-                Log.i("MediaPreviewProvider", "this file in database not has mimeType: $absolutePath")
-                val startTime = System.currentTimeMillis()
-                val extension = MimeTypeMap.getFileExtensionFromUrl(absolutePath)
-                val midTime = System.currentTimeMillis()
-                Log.i("MediaPreviewProvider", "this file re find mimeType has mid time: ${midTime - startTime}")
-                if (extension != null) {
-                    Log.i("MediaPreviewProvider", "this file get extension not null: $absolutePath")
-                    mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-                    val endTime = System.currentTimeMillis()
-                    Log.i("MediaPreviewProvider", "this file re find mimeType has time: ${endTime - startTime}")
-                    if (mimeType != null) {
-                        Log.i("MediaPreviewProvider", "this file has mimeType by utils find : $absolutePath")
-                    } else {
-                        Log.i("MediaPreviewProvider", "this file not has mimeType by utils find : $absolutePath")
-                        continue
-                    }
-                } else {
-                    Log.i("MediaPreviewProvider", "this file get extension is null: $absolutePath")
+                //从数据库获取mimeType为空时，利用工具再次获取一次，如果还为null，则过滤当前文件
+                val extension = MimeTypeMap.getFileExtensionFromUrl(absolutePath) ?: continue
+                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+                if (mimeType == null) {
                     continue
                 }
             }
