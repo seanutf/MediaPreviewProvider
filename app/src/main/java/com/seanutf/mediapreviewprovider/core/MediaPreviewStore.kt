@@ -9,12 +9,14 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.core.database.getStringOrNull
 import com.seanutf.mediapreviewprovider.QueryMode
 import com.seanutf.mediapreviewprovider.config.QueryConfig
 import com.seanutf.mediapreviewprovider.data.Album
 import com.seanutf.mediapreviewprovider.data.Media
 import java.util.*
+
 
 class MediaPreviewStore {
 
@@ -483,11 +485,29 @@ class MediaPreviewStore {
             val bucketId: Long = cursor.getLong(cursor.getColumnIndexOrThrow("bucket_id"))
             val bucketDisplayName: String? = cursor.getString(cursor.getColumnIndexOrThrow("bucket_display_name"))
 
-            val mimeType: String? = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
+            var mimeType: String? = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
 
             if (mimeType == null) {
-                Log.i("MediaPreviewProvider", "this file not has mimeType: $absolutePath")
-                continue
+                Log.i("MediaPreviewProvider", "this file in database not has mimeType: $absolutePath")
+                val startTime = System.currentTimeMillis()
+                val extension = MimeTypeMap.getFileExtensionFromUrl(absolutePath)
+                val midTime = System.currentTimeMillis()
+                Log.i("MediaPreviewProvider", "this file re find mimeType has mid time: ${midTime - startTime}")
+                if (extension != null) {
+                    Log.i("MediaPreviewProvider", "this file get extension not null: $absolutePath")
+                    mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+                    val endTime = System.currentTimeMillis()
+                    Log.i("MediaPreviewProvider", "this file re find mimeType has time: ${endTime - startTime}")
+                    if (mimeType != null) {
+                        Log.i("MediaPreviewProvider", "this file has mimeType by utils find : $absolutePath")
+                    } else {
+                        Log.i("MediaPreviewProvider", "this file not has mimeType by utils find : $absolutePath")
+                        continue
+                    }
+                } else {
+                    Log.i("MediaPreviewProvider", "this file get extension is null: $absolutePath")
+                    continue
+                }
             }
 
             if (loadAlbum) {
