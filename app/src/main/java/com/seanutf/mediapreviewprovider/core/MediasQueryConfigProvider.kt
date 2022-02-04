@@ -332,45 +332,46 @@ class MediasQueryConfigProvider {
         return if (bucketId == -1L) {
             //没有指定具体目录，为全部
             val argsArr1 = arrayOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString())
-            var argsArr2 = emptyArray<String>()
-            var finalArgsArr = emptyArray<String>()
 
-            if (!queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
-                val arr = argsArr1.plus((queryConfig ?: return null).imgQueryFormatArray ?: return null)
-                argsArr2 = arr
+            val argsArr2 = if (!queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
+                argsArr1.plus((queryConfig ?: return null).imgQueryFormatArray ?: return null)
+            } else {
+                argsArr1
             }
 
             val argsArr3 = argsArr2.plus(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString())
 
-            if (!queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
-                val arr = argsArr3.plus((queryConfig ?: return null).videoQueryFormatArray ?: return null)
-                finalArgsArr = arr
+            val finalArgsArr = if (!queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+                argsArr3.plus((queryConfig ?: return null).videoQueryFormatArray ?: return null)
+            } else {
+                argsArr3
             }
 
             finalArgsArr
         } else if (bucketId == -2L) {
             val argsArr1 = arrayOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString())
-            var finalArgsArr = emptyArray<String>()
-            if (!queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
-                val arr = argsArr1.plus((queryConfig ?: return null).videoQueryFormatArray ?: return null)
-                finalArgsArr = arr
+            val finalArgsArr = if (!queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+                argsArr1.plus((queryConfig ?: return null).videoQueryFormatArray ?: return null)
+            } else {
+                argsArr1
             }
+
             finalArgsArr
         } else {
             val argsArr1 = arrayOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString())
-            var argsArr2 = emptyArray<String>()
-            var argsArr4 = emptyArray<String>()
 
-            if (!queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
-                val arr = argsArr1.plus((queryConfig ?: return null).imgQueryFormatArray ?: return null)
-                argsArr2 = arr
+            val argsArr2 = if (!queryConfig?.imgQueryFormatArray.isNullOrEmpty()) {
+                argsArr1.plus((queryConfig ?: return null).imgQueryFormatArray ?: return null)
+            } else {
+                argsArr1
             }
 
             val argsArr3 = argsArr2.plus(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString())
 
-            if (!queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
-                val arr = argsArr3.plus((queryConfig ?: return null).videoQueryFormatArray ?: return null)
-                argsArr4 = arr
+            val argsArr4 = if (!queryConfig?.videoQueryFormatArray.isNullOrEmpty()) {
+                argsArr3.plus((queryConfig ?: return null).videoQueryFormatArray ?: return null)
+            } else {
+                argsArr3
             }
             val finalArr = argsArr4.plus(bucketId.toString())
             finalArr
