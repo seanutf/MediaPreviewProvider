@@ -1,5 +1,6 @@
 package com.seanutf.mediapreviewprovider.core
 
+import android.app.Application
 import com.seanutf.mediapreviewprovider.config.QueryConfig
 import com.seanutf.mediapreviewprovider.data.Album
 import com.seanutf.mediapreviewprovider.data.Media
@@ -12,11 +13,11 @@ class MediaPreviewProvider {
     private val mediasQuery = MediasQueryConfigProvider()
     private var queryConfig: QueryConfig? = null
 
-    fun setConfig(queryConfig: QueryConfig?) {
+    fun setConfig(context: Application?, queryConfig: QueryConfig?) {
         this.queryConfig = queryConfig
         albumQuery.setConfig(queryConfig)
         mediasQuery.setConfig(queryConfig)
-        store.setConfig(queryConfig)
+        store.setConfig(context, queryConfig)
     }
 
 

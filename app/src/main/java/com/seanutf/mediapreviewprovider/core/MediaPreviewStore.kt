@@ -1,6 +1,7 @@
 package com.seanutf.mediapreviewprovider.core
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.ContentResolver
 import android.database.Cursor
 import android.net.Uri
@@ -8,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import com.seanutf.mediapreviewprovider.ProviderContext
 import com.seanutf.mediapreviewprovider.QueryMode
 import com.seanutf.mediapreviewprovider.config.QueryConfig
 import com.seanutf.mediapreviewprovider.data.Album
@@ -19,13 +19,15 @@ class MediaPreviewStore {
 
     private var queryConfig: QueryConfig? = null
     private var allAlbumList: List<Album>? = null
+    private var context: Application? = null
 
     /**
      * 设置查找的数据参数
      *
      * [queryConfig] 查找数据的参数配置
      * */
-    fun setConfig(queryConfig: QueryConfig?) {
+    fun setConfig(context: Application?, queryConfig: QueryConfig?) {
+        this.context = context
         this.queryConfig = queryConfig
     }
 
@@ -44,7 +46,7 @@ class MediaPreviewStore {
 
         var cursor: Cursor? = null
         try {
-            cursor = ProviderContext.context.contentResolver.query(
+            cursor = context?.contentResolver?.query(
                 mediaUri,
                 projection,
                 selection,
@@ -334,7 +336,7 @@ class MediaPreviewStore {
     ): MutableList<Media>? {
         var cursor: Cursor? = null
         try {
-            cursor = ProviderContext.context.contentResolver.query(
+            cursor = context?.contentResolver?.query(
                 mediaUri,
                 projection,
                 selection,
@@ -408,9 +410,9 @@ class MediaPreviewStore {
         try {
             cursor = if (Build.VERSION.SDK_INT >= 30) {
                 val queryArgs: Bundle = createQueryArgsBundle(selection, selectionArgs)
-                ProviderContext.context.contentResolver.query(mediaUri, projection, queryArgs, null)
+                context?.contentResolver?.query(mediaUri, projection, queryArgs, null)
             } else {
-                ProviderContext.context.contentResolver.query(
+                context?.contentResolver?.query(
                     mediaUri,
                     projection,
                     selection,
