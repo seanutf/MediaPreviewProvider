@@ -196,11 +196,11 @@ class MediasQueryConfigProvider {
 
     private fun getSelectionForAllMedias(bucketId: Long): String {
         return if (bucketId == -1L) {
-            "(media_type=?${buildSelectionImgMineTypesForAllMedias()} OR media_type=?${buildSelectionVideoMineTypesForAllMedias()}')"
+            "(media_type=?${buildSelectionImgMineTypesForAllMedias()} OR media_type=?${buildSelectionVideoMineTypesForAllMedias()})"
         } else if (bucketId == -2L) {
-            "(media_type=?${buildSelectionVideoMineTypesForAllMedias()}')"
+            "(media_type=?${buildSelectionVideoMineTypesForAllMedias()})"
         } else {
-            "(media_type=?${buildSelectionImgMineTypesForAllMedias()} OR media_type=?${buildSelectionVideoMineTypesForAllMedias()}') AND bucket_id=?"
+            "(media_type=?${buildSelectionImgMineTypesForAllMedias()} OR media_type=?${buildSelectionVideoMineTypesForAllMedias()}) AND bucket_id=?"
         }
     }
 
