@@ -488,6 +488,8 @@ class MediaPreviewStore {
             var mimeType: String? = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
 
             if (mimeType == null) {
+                //在一加7 plus pro 双开微信时，双开微信下载的图片获取不到mimeType
+                //这样描述仅说明复现场景，不能说明仅仅是这一个机型的问题
                 //从数据库获取mimeType为空时，利用工具再次获取一次，如果还为null，则过滤当前文件
                 val extension = MimeTypeMap.getFileExtensionFromUrl(absolutePath) ?: continue
                 mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
