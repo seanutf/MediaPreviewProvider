@@ -481,6 +481,22 @@ class MediaPreviewStore {
             val absolutePath = basicRequires[0]
             val mimeType = basicRequires[1]
 
+            val customIntConfigs: Array<Int> = checkCustomIntConfigs(cursor, mimeType) ?: continue
+
+            val mediaWidth = customIntConfigs[0]
+            val mediaHeight = customIntConfigs[1]
+
+            val customLongConfigs: Array<Long> = checkCustomLongConfigs(cursor, mimeType) ?: continue
+
+            val size = customLongConfigs[0]
+            val dateModified = customLongConfigs[1]
+
+            val mediaName: String = checkCustomStringConfigs(cursor) ?: continue
+
+            //以上代码是根据固定基础要求和灵活配置获取的单个媒体的信息
+            //以便能够快速排除一些不符合当前配置和要求的媒体文件
+            //以下代码是对文件夹和媒体文件的处理
+
             val bucketId: Long = cursor.getLong(cursor.getColumnIndexOrThrow("bucket_id"))
             val bucketDisplayName: String? = cursor.getString(cursor.getColumnIndexOrThrow("bucket_display_name"))
 
@@ -552,7 +568,7 @@ class MediaPreviewStore {
                 }
             }
 
-            val mediaItem = buildMedia(cursor, absolutePath, mimeType)
+            val mediaItem = buildMedia(cursor, absolutePath, mimeType, mediaWidth, mediaHeight, size, dateModified, mediaName)
             mediaItems.add(mediaItem)
         }
 
@@ -577,14 +593,96 @@ class MediaPreviewStore {
         return mediaItems
     }
 
-    private fun buildMedia(cursor: Cursor, absolutePath: String, mimeType: String): Media {
+    private fun checkCustomStringConfigs(cursor: Cursor): String? {
+        val name = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+
+        if (!queryConfig?.queryName.isNullOrBlank()) {
+            if (!name.isNullOrBlank() && name.contains((queryConfig ?: return null).queryName ?: return null)) {
+                return name
+            } else {
+                return null
+            }
+        } else {
+            return name
+        }
+    }
+
+    private fun checkCustomLongConfigs(cursor: Cursor, mimeType: String): Array<Long>? {
+        val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+        val dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED))
+
+        if (mimeType.contains("video")) {
+            queryConfig?.run {
+                if (size < videoMinSize ||
+                    size > videoMaxSize ||
+                    dateModified < startTime ||
+                    dateModified > endTime
+                ) {
+                    return null
+                }
+            }
+        } else {
+            queryConfig?.run {
+                if (size < imgMinSize ||
+                    size > imgMaxSize ||
+                    dateModified < startTime ||
+                    dateModified > endTime
+                ) {
+                    return null
+                }
+            }
+        }
+
+        return arrayOf(size, dateModified)
+    }
+
+    private fun checkCustomIntConfigs(cursor: Cursor, mimeType: String): Array<Int>? {
+        val width = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.WIDTH))
+        val height = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.HEIGHT))
+
+        if (mimeType.contains("video")) {
+            queryConfig?.run {
+                if (width < videoMinWidth ||
+                    width > videoMaxWidth ||
+                    height < videoMinHeight ||
+                    height > videoMaxHeight
+                ) {
+                    return null
+                }
+            }
+        } else {
+            queryConfig?.run {
+                if (width < imgMinWidth ||
+                    width > imgMaxWidth ||
+                    height < imgMinHeight ||
+                    height > imgMaxHeight
+                ) {
+                    return null
+                }
+            }
+        }
+
+        return arrayOf(width, height)
+    }
+
+    private fun buildMedia(
+        cursor: Cursor,
+        absolutePath: String,
+        mimeType: String,
+        mediaWidth: Int,
+        mediaHeight: Int,
+        size: Long,
+        dateModified: Long,
+        mediaName: String
+    ): Media {
+
         val mediaItem = Media()
         mediaItem.mediaPath = absolutePath
-        mediaItem.name = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
-        mediaItem.size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
-        mediaItem.mediaWidth = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.WIDTH))
-        mediaItem.mediaHeight = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.HEIGHT))
-        mediaItem.dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED))
+        mediaItem.name = mediaName
+        mediaItem.size = size
+        mediaItem.mediaWidth = mediaWidth
+        mediaItem.mediaHeight = mediaHeight
+        mediaItem.dateModified = dateModified
 
         if (mimeType.contains("video")) {
             mediaItem.duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION))

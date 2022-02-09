@@ -14,6 +14,9 @@ class MediaPreviewProvider {
     private var queryConfig: QueryConfig? = null
 
     fun setConfig(context: Application?, queryConfig: QueryConfig?) {
+        queryConfig?.run {
+            transSetting()
+        }
         this.queryConfig = queryConfig
         albumQuery.setConfig(queryConfig)
         mediasQuery.setConfig(queryConfig)
