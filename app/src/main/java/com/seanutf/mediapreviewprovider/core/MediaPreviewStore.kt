@@ -467,7 +467,6 @@ class MediaPreviewStore {
         val bucketIdMap: MutableMap<Long, Int> = mutableMapOf()
         var needGetVideoCover = true
         var videoTotalCount = 0
-        //val retriever = MediaMetadataRetriever()
 
         val mediaAlbums: MutableList<Album> = ArrayList<Album>()
         val allVideoAlbum = Album()
@@ -476,27 +475,14 @@ class MediaPreviewStore {
 
 
         while (cursor.moveToNext()) {
-            val absolutePath = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)) ?: continue
 
-            if (absolutePath.contains("_.thumbnails") || absolutePath.contains("thumb")) {
-                continue
-            }
+            val basicRequires: Array<String> = checkBasicRequires(cursor) ?: continue
+
+            val absolutePath = basicRequires[0]
+            val mimeType = basicRequires[1]
 
             val bucketId: Long = cursor.getLong(cursor.getColumnIndexOrThrow("bucket_id"))
             val bucketDisplayName: String? = cursor.getString(cursor.getColumnIndexOrThrow("bucket_display_name"))
-
-            var mimeType: String? = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
-
-            if (mimeType == null) {
-                //在一加7 plus pro 双开微信时，双开微信下载的图片获取不到mimeType
-                //这样描述仅说明复现场景，不能说明仅仅是这一个机型的问题
-                //从数据库获取mimeType为空时，利用工具再次获取一次，如果还为null，则过滤当前文件
-                val extension = MimeTypeMap.getFileExtensionFromUrl(absolutePath) ?: continue
-                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-                if (mimeType == null) {
-                    continue
-                }
-            }
 
             if (loadAlbum) {
                 when (queryConfig?.mode ?: QueryMode.IMG) {
@@ -566,41 +552,7 @@ class MediaPreviewStore {
                 }
             }
 
-            val mediaItem = Media()
-            mediaItem.mediaPath = absolutePath
-            mediaItem.name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
-            mediaItem.size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
-            mediaItem.mediaWidth = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.WIDTH))
-            mediaItem.mediaHeight = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.HEIGHT))
-            mediaItem.dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED))
-
-            if (mimeType.contains("video")) {
-//                var tt1 :String? = null
-//                try {
-//                    val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
-//                    val id = cursor.getLong(idColumn)
-//                    val videoUri: Uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
-//                    retriever.setDataSource(AppContext.context, videoUri)
-//                    tt1 = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-//                    val aa = "fff"
-//                    retriever.release()
-//                } catch (e: RuntimeException) {
-//                    Log.e("hgh", "Cannot retrieve video file", e)
-//                }
-
-
-                val tt = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION))
-                mediaItem.duration = tt
-                mediaItem.artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.ARTIST))
-            }
-
-
-            if (mimeType.contains("video")) {
-                mediaItem.mediaType = Media.TYPE_MEDIA_VIDEO
-            } else if (mimeType.contains("image")) {
-                mediaItem.mediaType = Media.TYPE_MEDIA_IMAGE
-            }
-
+            val mediaItem = buildMedia(cursor, absolutePath, mimeType)
             mediaItems.add(mediaItem)
         }
 
@@ -623,6 +575,62 @@ class MediaPreviewStore {
         }
 
         return mediaItems
+    }
+
+    private fun buildMedia(cursor: Cursor, absolutePath: String, mimeType: String): Media {
+        val mediaItem = Media()
+        mediaItem.mediaPath = absolutePath
+        mediaItem.name = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+        mediaItem.size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+        mediaItem.mediaWidth = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.WIDTH))
+        mediaItem.mediaHeight = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.HEIGHT))
+        mediaItem.dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED))
+
+        if (mimeType.contains("video")) {
+            mediaItem.duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION))
+            mediaItem.artist = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.ARTIST))
+        }
+
+
+        if (mimeType.contains("video")) {
+            mediaItem.mediaType = Media.TYPE_MEDIA_VIDEO
+        } else if (mimeType.contains("image")) {
+            mediaItem.mediaType = Media.TYPE_MEDIA_IMAGE
+        }
+
+        return mediaItem
+    }
+
+    /**
+     * 这个方法是要求
+     * 某个媒体文件无论在什么筛选条件下都要符合下面的要求
+     * 即如果某个文件系统认为是媒体文件，如果不符合下面的要求
+     * 我这里也不认为是媒体文件，因为这种媒体文件本身场景
+     * 可能太过极端化：
+     * 1.没有完整文件路径
+     * 2.文件路径包含 thumb，可能为临时缓存文件
+     * 3.获取不到 mimeType，后续的媒体文件筛选过程依赖mimeType
+     * 如果获取不到，无法进行处理，相比其他媒体筛选器可能会"丢失"媒体文件
+     *
+     * */
+    private fun checkBasicRequires(cursor: Cursor): Array<String>? {
+        val absolutePath: String? = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA))
+
+        if (absolutePath == null || absolutePath.contains("_.thumbnails") || absolutePath.contains("/thumb")) {
+            return null
+        }
+
+        var mimeType: String? = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
+
+        if (mimeType == null) {
+            //在一加7 plus pro 双开微信时，双开微信下载的图片获取不到mimeType
+            //这样描述仅说明复现场景，不能说明仅仅是这一个机型的问题
+            //从数据库获取mimeType为空时，利用工具再次获取一次，如果还为null，则过滤当前文件
+            val extension: String = MimeTypeMap.getFileExtensionFromUrl(absolutePath) ?: return null
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: return null
+        }
+
+        return arrayOf(absolutePath, mimeType)
     }
 
     fun getAlbumList(): List<Album>? {
